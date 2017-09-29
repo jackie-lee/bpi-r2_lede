@@ -441,3 +441,7 @@
 	vusb33-supply = <&mt6323_vusb_reg>;
 	status = "okay";
 };
+
+&hnat {
+	status = "okay";
+};
