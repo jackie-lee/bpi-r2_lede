@@ -43,3 +43,19 @@ endif
 	$(call Image/Build/SysupgradeNAND,mt7623-NAND,$(1),$(KDIR)/uImage-mt7623-NAND,$$(COMPAT_NAND))
 	$(call Image/Build/SysupgradeNAND,mt7623-NAND-ePHY,$(1),$(KDIR)/uImage-mt7623-NAND-ePHY,$$(COMPAT_NAND_EPHY))
 endef
+
+define Image/Build/SDImage
+	./make_bundle_image.sh $(KDIR)/mtk-bpi-r2-SD.img \
+			       $(STAGING_DIR_IMAGE)/mtk-bpi-r2-preloader-sd.bin \
+			       $(STAGING_DIR_IMAGE)/mtk-bpi-r2-uboot.bin \
+			       $(KDIR)/uImage-mt7623n-bananapi-bpi-r2 \
+			       $(KDIR)/root.squashfs
+endef
+
+define Image/Build/EMMCImage
+	./make_bundle_image.sh $(KDIR)/mtk-bpi-r2-EMMC.img \
+			       $(STAGING_DIR_IMAGE)/mtk-bpi-r2-preloader-emmc.bin \
+			       $(STAGING_DIR_IMAGE)/mtk-bpi-r2-uboot.bin \
+			       $(KDIR)/uImage-mt7623n-bananapi-bpi-r2 \
+			       $(KDIR)/root.squashfs
+endef
