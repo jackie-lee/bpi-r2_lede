@@ -24,17 +24,11 @@ PKG_MAINTAINER:=Gary Wang <gary.wang@bananapi.com>
 include $(INCLUDE_DIR)/u-boot.mk
 include $(INCLUDE_DIR)/package.mk
 
-define U-Boot/Default
-  BUILD_TARGET:=mediatek
-  UBOOT_IMAGE:=u-boot.bin 
-  UENV:=default
-  HIDDEN:=1
-endef
-
-
 define U-Boot/bpi_r2
+  BUILD_TARGET:=mediatek
   NAME:=Mediatek Banana Pi R2 board
   BUILD_DEVICES:=bpi_r2
+  UBOOT_IMAGE:=u-boot.bin 
 endef
 
 UBOOT_TARGETS := \
