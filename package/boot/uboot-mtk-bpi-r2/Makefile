@@ -14,7 +14,7 @@ PKG_RELEASE:=1
 HOSTCPPFLAGS:="-I."
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/BPI-SINOVOIP/BPI-R2-LEDE-Uboot.git
-PKG_SOURCE_VERSION:=709bd8831e4ecaacf9a6a4021a4ceb448de68f8d
+PKG_SOURCE_VERSION:=8f04e713f93f94ca95fa671668ad8fa5eae30af3
 
 PKG_LICENSE:=GPL-2.0 GPL-2.0+
 PKG_LICENSE_FILES:=Licenses/README
@@ -40,8 +40,8 @@ UBOOT_CONFIGURE_VARS += USE_PRIVATE_LIBGCC=yes
 define Build/InstallDev
 	$(INSTALL_DIR) $(STAGING_DIR_IMAGE)
 	$(CP) $(PKG_BUILD_DIR)/$(UBOOT_IMAGE) $(STAGING_DIR_IMAGE)/mtk-bpi-r2-uboot.bin
-	$(CP) $(PKG_BUILD_DIR)/mt7623_evb_preloader/EMMC_PRELOADER_1600MHz.img $(STAGING_DIR_IMAGE)/mtk-bpi-r2-preloader-emmc.bin
-	$(CP) $(PKG_BUILD_DIR)/mt7623_evb_preloader/SD_PRELOADER_1600MHz.img $(STAGING_DIR_IMAGE)/mtk-bpi-r2-preloader-sd.bin
+	$(CP) $(PKG_BUILD_DIR)/bpi_r2_preloader/EMMC_PRELOADER_1600MHz.img $(STAGING_DIR_IMAGE)/mtk-bpi-r2-preloader-emmc.bin
+	$(CP) $(PKG_BUILD_DIR)/bpi_r2_preloader/SD_PRELOADER_1600MHz.img $(STAGING_DIR_IMAGE)/mtk-bpi-r2-preloader-sd.bin
 endef
 
 
