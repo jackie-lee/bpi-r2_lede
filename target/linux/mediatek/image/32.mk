@@ -29,8 +29,8 @@ define Image/Build/squashfs
 	$(call prepare_generic_squashfs,$(KDIR)/root.squashfs)
 	$(CP) $(KDIR)/root.squashfs $(BIN_DIR)/$(IMG_PREFIX)-root.squashfs
 
-	$(call Image/Build/SysupgradeCombined,mt7623n-bananapi-bpi-r2,squashfs,$$(COMPAT_EMMC))
-	$(call Image/Build/SysupgradeCombined,mt7623-eMMC,squashfs,$$(COMPAT_BPI-R2))
+	$(call Image/Build/SysupgradeCombined,mt7623n-bananapi-bpi-r2,squashfs,$$(COMPAT_BPI-R2))
+	$(call Image/Build/SysupgradeCombined,mt7623-eMMC,squashfs,$$(COMPAT_EMMC))
 
 	$(call Image/BuilduImage,mt7623-NAND)
 	$(call Image/BuilduImage,mt7623-NAND-ePHY)
