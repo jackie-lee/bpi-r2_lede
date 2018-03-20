@@ -1,0 +1,32 @@
+config interface 'loopback'
+        option ifname 'lo'
+        option proto 'static'
+        option ipaddr '127.0.0.1'
+        option netmask '255.0.0.0'
+
+config interface 'lan'
+        option type 'bridge'
+        option ifname 'lan0 lan1 lan2 lan3'
+        option proto 'static'
+        option ipaddr '192.168.1.1'
+        option netmask '255.255.255.0'
+        option ip6assign '60'
+
+config interface 'wan'
+        option ifname 'wan'
+        option proto 'dhcp'
+
+config device 'eth0'
+        option name 'eth0'
+
+config device 'lan0'
+        option name 'lan0'
+
+config device 'lan1'
+        option name 'lan1'
+
+config device 'lan2'
+        option name 'lan2'
+
+config device 'lan3'
+        option name 'lan3'

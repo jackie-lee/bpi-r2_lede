@@ -29,8 +29,8 @@ define Image/Build/squashfs
 	$(call prepare_generic_squashfs,$(KDIR)/root.squashfs)
 	$(CP) $(KDIR)/root.squashfs $(BIN_DIR)/$(IMG_PREFIX)-root.squashfs
 
-	$(call Image/Build/SysupgradeCombined,mt7623n-bananapi-bpi-r2,squashfs,$$(COMPAT_EMMC))
-	$(call Image/Build/SysupgradeCombined,mt7623-eMMC,squashfs,$$(COMPAT_BPI-R2))
+	$(call Image/Build/SysupgradeCombined,mt7623n-bananapi-bpi-r2,squashfs,$$(COMPAT_BPI-R2))
+	$(call Image/Build/SysupgradeCombined,mt7623-eMMC,squashfs,$$(COMPAT_EMMC))
 
 	$(call Image/BuilduImage,mt7623-NAND)
 	$(call Image/BuilduImage,mt7623-NAND-ePHY)
@@ -42,4 +42,20 @@ ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
 endif
 	$(call Image/Build/SysupgradeNAND,mt7623-NAND,$(1),$(KDIR)/uImage-mt7623-NAND,$$(COMPAT_NAND))
 	$(call Image/Build/SysupgradeNAND,mt7623-NAND-ePHY,$(1),$(KDIR)/uImage-mt7623-NAND-ePHY,$$(COMPAT_NAND_EPHY))
+endef
+
+define Image/Build/SDImage
+	./make_bundle_image.sh $(KDIR)/mtk-bpi-r2-SD.img \
+			       $(STAGING_DIR_IMAGE)/mtk-bpi-r2-preloader-sd.bin \
+			       $(STAGING_DIR_IMAGE)/mtk-bpi-r2-uboot.bin \
+			       $(KDIR)/uImage-mt7623n-bananapi-bpi-r2 \
+			       $(KDIR)/root.squashfs
+endef
+
+define Image/Build/EMMCImage
+	./make_bundle_image.sh $(KDIR)/mtk-bpi-r2-EMMC.img \
+			       $(STAGING_DIR_IMAGE)/mtk-bpi-r2-preloader-emmc.bin \
+			       $(STAGING_DIR_IMAGE)/mtk-bpi-r2-uboot.bin \
+			       $(KDIR)/uImage-mt7623n-bananapi-bpi-r2 \
+			       $(KDIR)/root.squashfs
 endef
