@@ -1,0 +1,9 @@
+
+config global
+	option timeout '60' # 120s
+	option softnum '1'
+
+config soft
+	option name 'ncasd'
+	option bin '/etc/init.d/ncasd start'
+	

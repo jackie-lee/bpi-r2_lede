@@ -1,0 +1,68 @@
+Index: linux-4.9.44/drivers/usb/serial/option.c
+===================================================================
+--- linux-4.9.44.orig/drivers/usb/serial/option.c	2017-12-22 16:57:09.824704579 +0800
++++ linux-4.9.44/drivers/usb/serial/option.c	2017-12-22 17:02:08.680699088 +0800
+@@ -474,6 +474,7 @@
+ #define YUGA_PRODUCT_CLM510			0x3604
+ #define YUGA_PRODUCT_CLM800			0x3605
+ #define YUGA_PRODUCT_CLM900			0x3606
++#define YUGA_PRODUCT_CLM920			0x9025
+ 
+ #define YUGA_PRODUCT_CLU718			0x3607
+ #define YUGA_PRODUCT_CLU716			0x3608
+@@ -675,6 +676,14 @@
+ 	.reserved = BIT(4) | BIT(5),
+ };
+ 
++static const struct option_blacklist_info YUGA_CLM920_blacklist = {
++	.reserved = BIT(0) | BIT(1) | BIT(4),
++};
++
++static const struct option_blacklist_info YUGA_CWM510_blacklist = {
++		.reserved = BIT(1),
++};
++
+ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_COLT) },
+ 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_RICOLA) },
+@@ -1956,7 +1965,7 @@
+ 	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWM600) },
+ 	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWM610) },
+ 	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWM500) },
+-	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWM510) },
++//	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWM510) },
+ 	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWM800) },
+ 	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWM900) },
+ 	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWU718) },
+@@ -1986,6 +1995,10 @@
+ 	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWU581) },
+ 	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWU582) },
+ 	{ USB_DEVICE(YUGA_VENDOR_ID, YUGA_PRODUCT_CWU583) },
++	{ USB_DEVICE(QUALCOMM_VENDOR_ID, YUGA_PRODUCT_CLM920),
++		.driver_info = (kernel_ulong_t)&YUGA_CLM920_blacklist},
++	{ USB_DEVICE(QUALCOMM_VENDOR_ID, YUGA_PRODUCT_CWM510) ,
++		.driver_info = (kernel_ulong_t)&YUGA_CWM510_blacklist},
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(VIETTEL_VENDOR_ID, VIETTEL_PRODUCT_VT1000, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZD_VENDOR_ID, ZD_PRODUCT_7000, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE(LG_VENDOR_ID, LG_PRODUCT_L02C) }, /* docomo L-02C modem */
+Index: linux-4.9.44/drivers/net/usb/usbnet.c
+===================================================================
+--- linux-4.9.44.orig/drivers/net/usb/usbnet.c	2017-08-17 04:44:13.000000000 +0800
++++ linux-4.9.44/drivers/net/usb/usbnet.c	2017-12-22 17:08:17.680692308 +0800
+@@ -1614,6 +1614,7 @@
+ 	 * for usb interface, otherwise usb_autopm_get_interface may return
+ 	 * failure if RUNTIME_PM is enabled.
+ 	 */
++	eth_random_addr(node_id);
+ 	if (!driver->supports_autosuspend) {
+ 		driver->supports_autosuspend = 1;
+ 		pm_runtime_enable(&udev->dev);
+@@ -2116,7 +2117,7 @@
+ 	BUILD_BUG_ON(
+ 		FIELD_SIZEOF(struct sk_buff, cb) < sizeof(struct skb_data));
+ 
+-	eth_random_addr(node_id);
++//	eth_random_addr(node_id);
+ 	return 0;
+ }
+ module_init(usbnet_init);

@@ -1,0 +1,28 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+boot(){
+	/usr/sbin/SntWatchdog start
+	echo 1 > /tmp/SntWatchdog_boot
+}
+
+start(){
+	if [ -e /tmp/SntWatchdog_boot ]; then
+		/usr/sbin/SntWatchdog start
+	else
+		boot
+	fi
+}
+
+stop(){
+	/usr/sbin/SntWatchdog stop
+}
+
+restart(){
+	/usr/sbin/SntWatchdog stop
+	/usr/sbin/SntWatchdog start
+}
+
+
+

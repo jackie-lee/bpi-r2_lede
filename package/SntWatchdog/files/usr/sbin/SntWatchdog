@@ -1,0 +1,61 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+usage() {
+	cat <<EOF
+Usage: $0 [start|stop]
+start (default) or stop SntWatchdog function.
+EOF
+	exit 1
+}
+
+# 获取总设置
+get_global(){
+	config_get timeout $1 timeout
+	config_get softnum $1 softnum
+	logger SntWatchdog "timeout=$timeout softnum=$softnum"
+}
+
+# 监控软件是否在运行中，不运行则开启之
+SntWatchdog_loop() {
+
+	while true
+	do
+		i=0
+		while [ $i -lt $softnum ]
+		do
+			#logger SntWatchdog "i=$i"
+			soft_name=$(uci get SntWatchdog.@soft[$i].name)
+			soft_bin=$(uci get SntWatchdog.@soft[$i].bin)
+			#logger SntWatchdog "soft_name=$soft_name"
+			#logger SntWatchdog "soft_bin=$soft_bin"
+			
+			run_status=$(pidof $soft_name)
+			#logger SntWatchdog "run_status=$run_status"
+			if [ "$run_status" == "" ];then
+				eval $soft_bin
+				logger SntWatchdog "start $soft_name with $soft_bin"
+			fi
+			i=`expr $i + 1`
+		done
+		
+		sleep $timeout
+	done
+
+}
+
+config_load SntWatchdog
+config_foreach get_global global
+
+case $1 in                                                                                                       
+    stop)
+		logger  SntWatchdog stop          
+	;;     
+	--help|help) usage;;	
+	*)
+		logger SntWatchdog start
+		SntWatchdog_loop &
+	;;
+esac
+
