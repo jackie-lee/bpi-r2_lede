@@ -1277,6 +1277,19 @@ endef
 
 $(eval $(call KernelPackage,usb-net-huawei-cdc-ncm))
 
+define KernelPackage/usb-net-yuga-gobinet
+  TITLE:=Support for YUGA 9x07 connections
+  KCONFIG:=CONFIG_USB_NET_YUGA_GOBINET
+  FILES:= $(LINUX_DIR)/drivers/$(USBNET_DIR)/gobinet/gobinet.ko
+  AUTOLOAD:=$(call AutoProbe,gobinet)
+  $(call AddDepends/usb-net)
+endef
+
+define KernelPackage/usb-net-yuga-gobinet/description
+ Kernel support for YUGA 9x07 connections
+endef
+
+$(eval $(call KernelPackage,usb-net-yuga-gobinet))
 
 define KernelPackage/usb-net-sierrawireless
   TITLE:=Support for Sierra Wireless devices

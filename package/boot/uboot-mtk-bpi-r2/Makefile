@@ -29,6 +29,7 @@ define U-Boot/bpi_r2
   NAME:=Mediatek Banana Pi R2 board
   BUILD_DEVICES:=bpi_r2
   UBOOT_IMAGE:=u-boot.bin 
+  DEFAULT:=y
 endef
 
 UBOOT_TARGETS := \
