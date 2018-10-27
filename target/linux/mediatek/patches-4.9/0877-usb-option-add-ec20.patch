@@ -1,0 +1,161 @@
+Index: linux-4.9.44/drivers/usb/serial/option.c
+===================================================================
+--- linux-4.9.44.orig/drivers/usb/serial/option.c
++++ linux-4.9.44/drivers/usb/serial/option.c
+@@ -236,11 +236,17 @@ static void option_instat_callback(struc
+ /* These Quectel products use Qualcomm's vendor ID */
+ #define QUECTEL_PRODUCT_UC20			0x9003
+ #define QUECTEL_PRODUCT_UC15			0x9090
++#define QUECTEL_PRODUCT_EC20			0x9215
+ 
+ #define QUECTEL_VENDOR_ID			0x2c7c
+ /* These Quectel products use Quectel's vendor ID */
+ #define QUECTEL_PRODUCT_EC21			0x0121
+ #define QUECTEL_PRODUCT_EC25			0x0125
++#define QUECTEL_PRODUCT_EG91			0x0191
++#define QUECTEL_PRODUCT_EG95			0x0195
++#define QUECTEL_PRODUCT_EG06			0x0306
++#define QUECTEL_PRODUCT_BG96			0x0296
++#define QUECTEL_PRODUCT_AG35			0x0435
+ 
+ #define CMOTECH_VENDOR_ID			0x16d8
+ #define CMOTECH_PRODUCT_6001			0x6001
+@@ -1179,6 +1185,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, QUECTEL_PRODUCT_UC15)},
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, QUECTEL_PRODUCT_UC20),
+ 	  .driver_info = (kernel_ulong_t)&net_intf4_blacklist },
++	{ USB_DEVICE(QUALCOMM_VENDOR_ID, QUECTEL_PRODUCT_EC20) },
+ 	/* Quectel products using Quectel vendor ID */
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21),
+ 	  .driver_info = (kernel_ulong_t)&net_intf4_blacklist },
+@@ -2071,6 +2078,7 @@ static struct usb_serial_driver option_1
+ #ifdef CONFIG_PM
+ 	.suspend           = usb_wwan_suspend,
+ 	.resume            = usb_wwan_resume,
++	.reset_resume		= usb_wwan_resume,
+ #endif
+ };
+ 
+@@ -2110,6 +2118,15 @@ static int option_probe(struct usb_seria
+ 	    iface_desc->bInterfaceClass != USB_CLASS_CDC_DATA)
+ 		return -ENODEV;
+ 
++	if (serial->dev->descriptor.idVendor == cpu_to_le16(QUALCOMM_VENDOR_ID) &&
++		serial->dev->descriptor.idProduct == cpu_to_le16(QUECTEL_PRODUCT_EC20) &&
++		iface_desc->bInterfaceNumber >= 4)
++		return -ENODEV;
++
++	if (serial->dev->descriptor.idVendor == cpu_to_le16(QUECTEL_VENDOR_ID) &&
++		iface_desc->bInterfaceNumber >= 4)
++		return -ENODEV; 
++
+ 	/* Store the blacklist info so we can use it during attach. */
+ 	usb_set_serial_data(serial, (void *)blacklist);
+ 
+Index: linux-4.9.44/drivers/usb/serial/qcserial.c
+===================================================================
+--- linux-4.9.44.orig/drivers/usb/serial/qcserial.c
++++ linux-4.9.44/drivers/usb/serial/qcserial.c
+@@ -92,7 +92,6 @@ static const struct usb_device_id id_tab
+ 	{USB_DEVICE(0x03f0, 0x241d)},	/* HP Gobi 2000 QDL device (VP412) */
+ 	{USB_DEVICE(0x03f0, 0x251d)},	/* HP Gobi 2000 Modem device (VP412) */
+ 	{USB_DEVICE(0x05c6, 0x9214)},	/* Acer Gobi 2000 QDL device (VP413) */
+-	{USB_DEVICE(0x05c6, 0x9215)},	/* Acer Gobi 2000 Modem device (VP413) */
+ 	{USB_DEVICE(0x05c6, 0x9264)},	/* Asus Gobi 2000 QDL device (VR305) */
+ 	{USB_DEVICE(0x05c6, 0x9265)},	/* Asus Gobi 2000 Modem device (VR305) */
+ 	{USB_DEVICE(0x05c6, 0x9234)},	/* Top Global Gobi 2000 QDL device (VR306) */
+Index: linux-4.9.44/drivers/net/usb/qmi_wwan.c
+===================================================================
+--- linux-4.9.44.orig/drivers/net/usb/qmi_wwan.c
++++ linux-4.9.44/drivers/net/usb/qmi_wwan.c
+@@ -932,7 +932,6 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x03f0, 0x4e1d, 8)},	/* HP lt4111 LTE/EV-DO/HSPA+ Gobi 4G Module */
+ 	{QMI_FIXED_INTF(0x22de, 0x9061, 3)},	/* WeTelecom WPD-600N */
+ 	{QMI_FIXED_INTF(0x1e0e, 0x9001, 5)},	/* SIMCom 7230E */
+-	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0125, 4)},	/* Quectel EC25, EC20 R2.0  Mini PCIe */
+ 	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0121, 4)},	/* Quectel EC21 Mini PCIe */
+ 
+ 	/* 4. Gobi 1000 devices */
+@@ -963,7 +962,6 @@ static const struct usb_device_id produc
+ 	{QMI_GOBI_DEVICE(0x05c6, 0x9225)},	/* Sony Gobi 2000 Modem device (N0279, VU730) */
+ 	{QMI_GOBI_DEVICE(0x05c6, 0x9245)},	/* Samsung Gobi 2000 Modem device (VL176) */
+ 	{QMI_GOBI_DEVICE(0x03f0, 0x251d)},	/* HP Gobi 2000 Modem device (VP412) */
+-	{QMI_GOBI_DEVICE(0x05c6, 0x9215)},	/* Acer Gobi 2000 Modem device (VP413) */
+ 	{QMI_FIXED_INTF(0x05c6, 0x9215, 4)},	/* Quectel EC20 Mini PCIe */
+ 	{QMI_GOBI_DEVICE(0x05c6, 0x9265)},	/* Asus Gobi 2000 Modem device (VR305) */
+ 	{QMI_GOBI_DEVICE(0x05c6, 0x9235)},	/* Top Global Gobi 2000 Modem device (VR306) */
+Index: linux-4.9.44/drivers/usb/serial/usb_wwan.c
+===================================================================
+--- linux-4.9.44.orig/drivers/usb/serial/usb_wwan.c
++++ linux-4.9.44/drivers/usb/serial/usb_wwan.c
+@@ -504,6 +504,14 @@ static struct urb *usb_wwan_setup_urb(st
+ 	usb_fill_bulk_urb(urb, serial->dev,
+ 			  usb_sndbulkpipe(serial->dev, endpoint) | dir,
+ 			  buf, len, callback, ctx);
++	
++	if (dir == USB_DIR_OUT) {
++		struct usb_device_descriptor *desc = &serial->dev->descriptor;
++		if (desc->idVendor == cpu_to_le16(0x05C6) && desc->idProduct == cpu_to_le16(0x9215))
++			urb->transfer_flags |= URB_ZERO_PACKET;
++		if (desc->idVendor == cpu_to_le16(0x2C7C))
++			urb->transfer_flags |= URB_ZERO_PACKET;
++	}
+ 
+ 	return urb;
+ }
+Index: linux-4.9.44/drivers/usb/core/config.c
+===================================================================
+--- linux-4.9.44.orig/drivers/usb/core/config.c
++++ linux-4.9.44/drivers/usb/core/config.c
+@@ -486,6 +486,30 @@ static int usb_parse_interface(struct de
+ 	buffer += i;
+ 	size -= i;
+ 
++	if (to_usb_device(ddev)->descriptor.idVendor == cpu_to_le16(0x2c7c) && to_usb_device(ddev)->descriptor.idProduct == cpu_to_le16(0x0125))
++	{
++		/* 4G Module 1 enable interface 1-gps 3 4-data */
++		if (to_usb_device(ddev)->portnum == 1)
++		{
++			if (d->bInterfaceNumber == 0 || d->bInterfaceNumber == 2)
++			{
++				d->bNumEndpoints = 0;
++				alt->desc.bNumEndpoints = 0;
++				goto skip_to_next_interface_descriptor;
++			}
++		} 
++		/* 4G Module 2, 3, 4 enable interface 3 4-data */
++		else
++		{
++			if (d->bInterfaceNumber == 0 || d->bInterfaceNumber == 1 || d->bInterfaceNumber == 2)
++			{
++				d->bNumEndpoints = 0;
++				alt->desc.bNumEndpoints = 0;
++				goto skip_to_next_interface_descriptor;
++			}
++		}
++	}
++
+ 	/* Allocate space for the right(?) number of endpoints */
+ 	num_ep = num_ep_orig = alt->desc.bNumEndpoints;
+ 	alt->desc.bNumEndpoints = 0;		/* Use as a counter */
+Index: linux-4.9.44/drivers/net/usb/usbnet.c
+===================================================================
+--- linux-4.9.44.orig/drivers/net/usb/usbnet.c
++++ linux-4.9.44/drivers/net/usb/usbnet.c
+@@ -1614,6 +1614,7 @@ usbnet_probe (struct usb_interface *udev
+ 	 * for usb interface, otherwise usb_autopm_get_interface may return
+ 	 * failure if RUNTIME_PM is enabled.
+ 	 */
++	eth_random_addr(node_id);
+ 	if (!driver->supports_autosuspend) {
+ 		driver->supports_autosuspend = 1;
+ 		pm_runtime_enable(&udev->dev);
+@@ -2116,7 +2117,7 @@ static int __init usbnet_init(void)
+ 	BUILD_BUG_ON(
+ 		FIELD_SIZEOF(struct sk_buff, cb) < sizeof(struct skb_data));
+ 
+-	eth_random_addr(node_id);
++	//eth_random_addr(node_id);
+ 	return 0;
+ }
+ module_init(usbnet_init);

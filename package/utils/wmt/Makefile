@@ -46,10 +46,6 @@ define Package/$(PKG_NAME)/install
 	$(CP) ./config/WMT_SOC.cfg $(1)/system/etc/firmware
 	mkdir -p $(1)/etc/firmware/
 	$(CP) -r ./firmware/* $(1)/etc/firmware/
-	mkdir -p $(1)/etc/init.d
-	$(CP) -r ./etc/init.d/* $(1)/etc/init.d/
-	mkdir -p $(1)/etc/rc.d
-	$(LN) $(1)/etc/init.d/wmtd $(1)/etc/rc.d/S98wmtd
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
